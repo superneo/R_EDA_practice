@@ -13,7 +13,7 @@
 #
 # ==============================================================================
 
-if("here" %in% rownames(installed.packages()) == FALSE) {
+if ("here" %in% rownames(installed.packages()) == FALSE) {
     install.packages("here")
 }
 
@@ -22,8 +22,8 @@ library(here)
 KMA_read <- FALSE
 df_KMA <- NULL
 
-get_whole_KMA_data <- function() {
-    if(KMA_read && !is.null(df_KMA)) {
+get_whole_KMA <- function() {
+    if (KMA_read && !is.null(df_KMA)) {
         print("KMA dataframe is ready already!")
         return(df_KMA)
     }
@@ -43,20 +43,36 @@ get_whole_KMA_data <- function() {
     return(df_KMA)
 }
 
-get_KMA_data <- function(year_start, year_end) {
+get_partial_KMA <- function(year_start, year_end) {
+    if (!KMA_read || is.null(df_KMA)) {
+        print("KMA dataframe must be ready in advance!")
+        return(NULL)
+    }
+
     if (year_start > year_end) {
         print(paste0("[ERROR] year_start(", year_start,
                      ") exceeds year_end(", year_end, ")"))
-        return (-1)
+        return(NULL)
     }
 
-    #
+    if (year_start < 2000 || year_end > 2020) {
+        print("[ERROR] 2000 <= yeart_start and year_end <= 2020")
+        return(NULL)
+    }
+
+    years <- unlist(lapply(year_start:year_end, as.character))
+    idcs <- lapply(df_KMA[,3],
+                   function(x) { sum(startsWith(x, years)) > 0 })
+    subframe <- df_KMA[unlist(idcs),]
+    rownames(subframe) <- NULL
+
+    return(subframe)
 }
 
 # ====  TESTS  =================================================================
 
 if (TRUE) {
     print(paste('Project root:', here()))
-    get_whole_KMA_data()
-    get_KMA_data(2019, 2018)
+    get_whole_KMA()
+    get_partial_KMA(2019, 2018)
 }
