@@ -1,0 +1,60 @@
+---
+title: "EDA on KMA & TWC SPF"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r, include=FALSE}
+source('get_raw_data.R')
+kma1020 <- get_partial_KMA(2010, 2020)
+
+kma1020[is.na(kma1020[9]),][9] <- 0
+kma10 <- kma1020[unlist(lapply(unlist(kma1020[3], use.names = FALSE), function(x) { startsWith(x, '2010') })),]
+daily_idcs <- as.integer(rownames(kma10))
+```
+
+### data structure sample by head
+```{r, echo=FALSE}
+head(kma1020)
+```
+
+### plot of 2010 daily min/max temperature time
+
+```{r, echo=FALSE}
+plot(daily_idcs, unlist(kma10[6]), main='최저기온시각', xlab='', ylab='최저기온시각(hhmi)')
+plot(daily_idcs, unlist(kma10[8]), main='최고기온시각', xlab='', ylab='최고기온시각(hhmi)')
+```
+
+### Plot of 2010 daily min/avg/max temperature
+
+```{r, echo=FALSE}
+plot(daily_idcs, unlist(kma10[4]), main='2010년 일 최저/평균/최고 기온', xlab='', ylab='기온',
+     xlim=c(1,365), ylim=c(-20.0, 40.0))
+par(new=T)
+plot(daily_idcs, unlist(kma10[5]), main='', xlab='', ylab='',
+     xlim=c(1,365), ylim=c(-20.0, 40.0), axes=F, col='blue')
+par(new=T)
+plot(daily_idcs, unlist(kma10[7]), main='', xlab='', ylab='',
+     xlim=c(1,365), ylim=c(-20.0, 40.0), axes=F, col='red')
+par(new=F)
+```
+
+### box plot of 2010 daily min/avg/max temperature
+
+```{r, echo=FALSE}
+boxplot(kma10[,c(5,4,7)])
+#boxplot(kma20[,c(5,4,7)],add=TRUE,border="red")
+```
+
+### Plot of 2010 daily precipitation
+
+```{r, echo=FALSE}
+plot(daily_idcs, unlist(kma10[9]), main='2010년 일 강수량', xlab='', ylab='강수량')
+```
+
+### Plot of 2010 daily avg temperature & precipitation
+
+```{r, echo=FALSE}
+plot(unlist(kma10[4]), unlist(kma10[9]), main='2010년 강수량/평균 기온 산점도', xlab='평균기온', ylab='강수량')
+```
